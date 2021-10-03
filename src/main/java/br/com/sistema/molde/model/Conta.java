@@ -20,7 +20,7 @@ public class Conta {
 	public int getId() {
 		return id_conta;
 	}
-	public void setId(int id) {
+	public void setId(int id_conta) {
 		this.id_conta = id_conta;
 	}
 	public String getEmail() {
