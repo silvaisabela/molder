@@ -1,6 +1,5 @@
 package br.com.sistema.molde.controller;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,13 @@ public class ContaController {
 		List<Conta> contas = contaRepository.findAll();
 		
 		return ContaDto.converter(contas);
+
+	}
+	
+	@RequestMapping("/auth/accounts")
+	public String helloWorld() {
+		
+		return String.format("Hello World");
 
 	}
 }
