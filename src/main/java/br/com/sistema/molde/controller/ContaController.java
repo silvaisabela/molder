@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ import br.com.sistema.molde.repository.ContaRepository;
 @RestController
 @RequestMapping(value= "/auth/accounts")
 public class ContaController {
+	
 	int id_atual = 1;
 	
 	@Autowired
@@ -41,7 +43,8 @@ public class ContaController {
 	
 	@PostMapping
 	public ResponseEntity createAccount(@RequestBody ContaForm form, UriComponentsBuilder uriBuilder) throws Exception {
-		Conta conta = form.converter(id_atual++);
+		id_atual = contaRepository.findGreatestId() + 1 ;
+		Conta conta = form.converter(id_atual);
 		try {
 			conta.setSenha(encoder.encode(conta.getSenha()));
 			System.out.println("encoder: "+ encoder);
