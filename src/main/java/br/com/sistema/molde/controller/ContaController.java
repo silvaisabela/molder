@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,16 +40,17 @@ public class ContaController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<ContaDto> createAccount(@RequestBody ContaForm form, UriComponentsBuilder uriBuilder) throws Exception {
+	public ResponseEntity createAccount(@RequestBody ContaForm form, UriComponentsBuilder uriBuilder) throws Exception {
 		Conta conta = form.converter(id_atual++);
-		if(contaRepository.findByEmail(conta.getEmail()) == null) {
+		try {
 			conta.setSenha(encoder.encode(conta.getSenha()));
 			System.out.println("encoder: "+ encoder);
 			System.out.println("senha: "+ encoder.encode(conta.getSenha()));
 			contaRepository.save(conta);
-		}else {
-			throw new Exception("Email "+ conta.getEmail()+ " já cadastrado");
+		}catch(DataIntegrityViolationException e) {
+			return new ResponseEntity<>("Email já cadastrado", HttpStatus.CONFLICT);
 		}
+
 
 		URI uri = uriBuilder.path("/auth/accounts/{id}").buildAndExpand(conta.getId()).toUri();
 		return ResponseEntity.created(uri).body(new ContaDto(conta));
