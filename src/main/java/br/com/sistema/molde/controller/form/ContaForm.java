@@ -35,7 +35,7 @@ public class ContaForm {
 		this.email_verificacao = email_verificacao;
 	}
 	public Conta converter(int id_atual) {
-		return new Conta(id_atual, email, senha, email_verificacao);
+		return new Conta(id_atual, email, senha);
 	}
 	
 	

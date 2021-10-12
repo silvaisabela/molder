@@ -7,7 +7,8 @@ import br.com.sistema.molde.model.Conta;
 
 public interface ContaRepository extends JpaRepository<Conta, Integer>{
 	Conta findByEmail(String email);
+	Conta findById(int id);
 	
-	@Query(value = "SELECT max(id_conta) from Conta")
+	@Query(value = "SELECT nvl(max(id_conta), 0) from Conta")
 	int findGreatestId();
 }
