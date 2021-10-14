@@ -19,12 +19,12 @@ public class Conta {
 	public Conta() {
 	}
 		
-	public Conta(int id_conta, String email, String senha, boolean email_verificacao) {
+	public Conta(int id_conta, String email, String senha) {
 		super();
 		this.id_conta = id_conta;
 		this.email = email;
 		this.senha = senha;
-		this.email_verificacao = email_verificacao;
+		this.email_verificacao = false;
 	}
 
 	
