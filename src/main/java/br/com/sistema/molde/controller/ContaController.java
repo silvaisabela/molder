@@ -55,66 +55,78 @@ public class ContaController {
 
 	}
 
-	@PostMapping(value="/accounts")
+	@PostMapping(value = "/accounts")
 	public ResponseEntity createAccount(@RequestBody ContaForm form, UriComponentsBuilder uriBuilder) throws Exception {
-		id_atual = contaRepository.findGreatestId() + 1 ;
-		id_atual_token = confirmationTokenRepository.findGreatestId() + 1 ;
+		id_atual = contaRepository.findGreatestId() + 1;
+		id_atual_token = confirmationTokenRepository.findGreatestId() + 1;
 		Conta conta = form.converter(id_atual);
 		try {
 			conta.setSenha(encoder.encode(conta.getSenha()));
-			System.out.println("encoder: "+ encoder);
-			System.out.println("senha: "+ encoder.encode(conta.getSenha()));
+			System.out.println("encoder: " + encoder);
+			System.out.println("senha: " + encoder.encode(conta.getSenha()));
 			contaRepository.save(conta);
 			String token = UUID.randomUUID().toString();
 			try {
-				ConfirmationToken confirmationToken = new ConfirmationToken(id_atual, token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), conta);
+				ConfirmationToken confirmationToken = new ConfirmationToken(id_atual, token, LocalDateTime.now(),
+						LocalDateTime.now().plusMinutes(15), conta);
 				confirmationTokenService.saveConfirmationToken(confirmationToken);
-			}catch(Exception e) {
+			} catch (Exception e) {
 				return new ResponseEntity<>(e, HttpStatus.CONFLICT);
 			}
-			
+
 			String message = "Olá! Obrigado por se registrar no Molde. Clique no link para confirmar o seu email: ";
-			message+= " http://localhost:8080/auth/email-validate?token="+token;
-			
+			message += " http://localhost:8080/auth/email-validate?token=" + token;
+
 			senderEmail.sendSimpleMessage(conta.getEmail(), "Confirmação de senha", message);
-			
-		}catch(DataIntegrityViolationException e) {
+
+		} catch (DataIntegrityViolationException e) {
 			return new ResponseEntity<>("Email já cadastrado", HttpStatus.CONFLICT);
 		}
-
 
 		URI uri = uriBuilder.path("/auth/accounts/{id}").buildAndExpand(conta.getId()).toUri();
 		return ResponseEntity.created(uri).body(new ContaDto(conta));
 	}
-	
+
 	@GetMapping(path = "email-validate")
 	public ResponseEntity confirm(@RequestParam("token") String token) {
-		
 		ConfirmationToken confirmationToken = confirmationTokenRepository.findByToken(token);
-		
-		if(confirmationToken.getConfirmedAt() != null) {
+
+		if (confirmationToken.getConfirmedAt() != null) {
 			return new ResponseEntity<>("Email já confirmado", HttpStatus.CONFLICT);
 		}
-		
+
 		LocalDateTime expiredAt = confirmationToken.getExpiresAt();
-		if(expiredAt.isBefore(LocalDateTime.now())) {
+		if (expiredAt.isBefore(LocalDateTime.now())) {
 			return new ResponseEntity<>("Tempo de confirmação de email expirado", HttpStatus.CONFLICT);
 		}
-		
+
 		confirmationToken.setConfirmedAt(LocalDateTime.now());
 		confirmationTokenService.saveConfirmationToken(confirmationToken);
-		//TODO setVerificacaoEmail TB_CONTA
+		// TODO setVerificacaoEmail TB_CONTA
 		Conta conta = contaRepository.findById(confirmationToken.getConta().getId());
 		conta.setEmail_verificacao(true);
 		contaRepository.save(conta);
-		
+
 		return new ResponseEntity<>("Email confirmado", HttpStatus.OK);
 	}
-	
+
+	// recebe o email e o senha
+	@GetMapping("/login")
+	public ResponseEntity<Boolean> login(@RequestParam String email, @RequestParam String senha) {
+
+		// consultar usuário
+		Conta optUsuario = contaRepository.findByEmail(email);
+		if (optUsuario == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+		}
+
+		// consultar senha
+		// Conta usuario = optUsuario.get();
+		boolean valid = encoder.matches(senha, optUsuario.getSenha()) && optUsuario.getEmail_verificacao() != false;
+
+		// retornar status do HTTP
+		HttpStatus status = (valid) ? HttpStatus.OK
+				: HttpStatus.UNAUTHORIZED;
+		return ResponseEntity.status(status).body(valid);
+	}
 }
-
-
-
-
-
-
