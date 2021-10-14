@@ -10,17 +10,36 @@ import javax.persistence.Table;
 @Table(name = "TB_CONTA")
 public class Conta {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id_conta;
 
 	private String email;
 	private String senha;
-	private char email_verificacao;
+	private boolean email_verificacao;
 	
+	public Conta() {
+	}
+		
+	public Conta(int id_conta, String email, String senha, boolean email_verificacao) {
+		super();
+		this.id_conta = id_conta;
+		this.email = email;
+		this.senha = senha;
+		this.email_verificacao = email_verificacao;
+	}
+
+	
+	public int getId_conta() {
+		return id_conta;
+	}
+
+	public void setId_conta(int id_conta) {
+		this.id_conta = id_conta;
+	}
+
 	public int getId() {
 		return id_conta;
 	}
-	public void setId(int id) {
+	public void setId(int id_conta) {
 		this.id_conta = id_conta;
 	}
 	public String getEmail() {
@@ -35,10 +54,10 @@ public class Conta {
 	public void setSenha(String senha) {
 		this.senha = senha;
 	}
-	public char getEmail_verificacao() {
+	public boolean getEmail_verificacao() {
 		return email_verificacao;
 	}
-	public void setEmail_verificacao(char email_verificacao) {
+	public void setEmail_verificacao(boolean email_verificacao) {
 		this.email_verificacao = email_verificacao;
 	}
 	

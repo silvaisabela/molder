@@ -10,7 +10,7 @@ public class ContaDto {
 	private int id_conta;
 	private String email;
 	private String senha;
-	private char email_verificacao;
+	private boolean email_verificacao;
 	
 	public ContaDto(Conta conta) {
 		this.id_conta = conta.getId();
@@ -28,7 +28,7 @@ public class ContaDto {
 	public String getSenha() {
 		return senha;
 	}
-	public char getEmail_verificacao() {
+	public boolean getEmail_verificacao() {
 		return email_verificacao;
 	}
 
