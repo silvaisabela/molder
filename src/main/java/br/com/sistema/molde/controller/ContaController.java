@@ -111,7 +111,29 @@ public class ContaController {
 		return new ResponseEntity<>("Email confirmado", HttpStatus.OK);
 	}
 	
-}
+	//recebe o email e o senha
+		@GetMapping("/login")
+		public ResponseEntity<Boolean> login(@RequestParam String email, 
+											@RequestParam String senha){
+			
+		//consultar usuário
+		Conta optUsuario = contaRepository.findByEmail(email);
+		if (optUsuario == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
+		}
+		
+		//consultar senha
+		//Conta usuario = optUsuario.get();
+		boolean valid = encoder.matches(senha, optUsuario.getSenha());
+		
+		//retornar status do HTTP
+		HttpStatus status = (valid)? HttpStatus.OK : HttpStatus.UNAUTHORIZED;
+		return ResponseEntity.status(status).body(valid);
+		
+		}
+	}
+	
+
 
 
 
